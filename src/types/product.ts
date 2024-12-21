@@ -62,16 +62,6 @@ export interface Product {
   markable: boolean;
 }
 
-export interface ShopItem {
-  name: string;
-  imgs: string[];
-  parentProductId: number;
-  isOutOfStock: boolean;
-  price: number;
-  description: string;
-  color?: string;
-}
-
 export interface GetProductsResponse {
   success: boolean;
   pagination: Pagination;
@@ -101,6 +91,8 @@ export interface ProductPreviewData {
 export interface PossibleOffer {
   isOutOfStock: boolean;
   parentProductName: string;
+  parentProductId: number;
+  availableQuantity: number;
   name: string;
   price: number;
   images: string[];
@@ -110,3 +102,20 @@ export interface PossibleOffer {
     size?: string;
   };
 }
+
+export interface ShopItem {
+  name: string;
+  imgs: string[];
+  parentProductId: number;
+  isOutOfStock: boolean;
+  price: number;
+  description: string;
+  color?: string;
+}
+
+export interface TransformedProductData {
+  dynamicProduct: ProductPreviewData;
+  dynamicPossibleOffers: PossibleOffer[];
+}
+
+export type Manufacturer = "SERVISEX" | "GOAT.CORP";

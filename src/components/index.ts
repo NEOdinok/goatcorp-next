@@ -8,7 +8,9 @@ export { BaseHeader } from "./BaseHeader";
 export { BaseFooter } from "./BaseFooter";
 export { HeaderNavigation } from "./HeaderNavigation";
 export { HomeNavigation } from "./HomeNavigation";
-export { Welcome } from "./Welcome";
+export { HomeNavigationGoat } from "./HomeNavigationGoat";
+export { HomeGoat } from "./HomeGoat";
+export { HomeServisex } from "./HomeServisex";
 export { ShopProductCard } from "./ShopProductCard";
 export { CartProductCard } from "./CartProductCard";
 export { ProductsShowcase } from "./ProductsShowcase";
@@ -18,8 +20,18 @@ export { QuantitySelector } from "./QuantitySelector";
 export { ConfirmationDialog } from "./ConfirmationDialog";
 export { HeaderCartCounter } from "./HeaderCartCounter";
 export { CheckoutFormField } from "./CheckoutFormField";
+export { Sidebar } from "./Sidebar";
+export { CheckoutBlockCart } from "./CheckoutBlockCart";
+export { CheckoutBlockTotal } from "./CheckoutBlockTotal";
+export { CheckoutBlockDelivery } from "./CheckoutBlockDelivery";
+export { CheckoutBlockPayment } from "./CheckoutBlockPayment";
+export { CheckoutBlockContacts } from "./CheckoutBlockContacts";
+export { Thanks } from "./Thanks";
 
-export { Loading } from "./ui/loading";
+export { CopyrightServisex } from "./ui/copyright-servisex";
+export { CopyrightGoat } from "./ui/copyright-goat";
+export { LoadingGoat } from "./ui/loading-goat";
+export { LoadingServisex } from "./ui/loading-servisex";
 export { LoadingEllipsis } from "./ui/loading-ellipsis";
 export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from "./ui/card";
 export { Button } from "./ui/button";
@@ -30,6 +42,7 @@ export { Toaster } from "./ui/toast";
 export { Separator } from "./ui/separator";
 export { Input } from "./ui/input";
 export { RadioGroup, RadioGroupItem } from "./ui/radio";
+export { Skeleton } from "./ui/skeleton";
 
 export {
   Form,

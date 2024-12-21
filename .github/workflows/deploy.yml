@@ -5,23 +5,14 @@ on:
     branches:
       - main
 
-permissions:
-  contents: read
-  deployments: write
+env:
+  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 
 jobs:
-  build:
-    environment: production
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Start deployment
-        uses: bobheadxi/deployments@v1
-        id: deployment
-        with:
-          env: production
-          step: start
-
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -37,17 +28,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Install Netlify CLI
-        run: pnpm add -g netlify-cli
+      - name: Install Vercel CLI
+        run: pnpm add -g vercel@latest
 
-      - name: Deploy to Netlify
-        run: netlify deploy --prod --build --message "production [${{ github.sha }}]"
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-          NEXT_PUBLIC_RETAIL_CRM_API: ${{ secrets.NEXT_PUBLIC_RETAIL_CRM_API }}
-          NEXT_PUBLIC_CDEK_ACCOUNT_IDENTIFIER: ${{secrets.NEXT_PUBLIC_CDEK_ACCOUNT_IDENTIFIER}}
-          NEXT_PUBLIC_CDEK_SECRET: ${{secrets.NEXT_PUBLIC_CDEK_SECRET}}
-          NEXT_PUBLIC_SITE_URL: ${{vars.NEXT_PUBLIC_SITE_URL}}
-          NEXT_PUBLIC_ENVIRONMENT: ${{vars.NEXT_PUBLIC_ENVIRONMENT}}
-          NEXT_PUBLIC_YANDEX_MAPS_SECRET: ${{secrets.NEXT_PUBLIC_YANDEX_MAPS_SECRET}}
+      - name: Build and Deploy with Vercel
+        run: |
+          vercel build --prod --token $VERCEL_TOKEN
+          vercel deploy --prebuilt --prod --token $VERCEL_TOKEN

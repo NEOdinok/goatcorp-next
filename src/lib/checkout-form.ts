@@ -1,8 +1,6 @@
-import { Control, FieldValues, useForm } from "react-hook-form";
-
 import { z } from "zod";
 
-export const formSchema = z.object({
+const checkoutSchema = z.object({
   firstName: z.string().min(2, {
     message: "Имя должно быть более 2 символов",
   }),
@@ -25,13 +23,21 @@ export const formSchema = z.object({
     .min(2, {
       message: "[Строка] Номер не может быть таким коротким",
     }),
-  address: z
-    .string({
-      message: "Введите",
-    })
-    .min(2, {
-      message: "Введите больше 2 символов",
-    }),
+  deliveryMethod: z.enum(["delivery", "pickup"]),
+  deliveryTariff: z.string().optional(),
+  address: z.string().optional(),
 });
 
-export type CheckoutForm = z.infer<typeof formSchema>;
+export type CheckoutForm = z.infer<typeof checkoutSchema>;
+
+function validateAddressForDelivery(data: CheckoutForm): boolean {
+  if (data.deliveryMethod === "delivery") {
+    return !!data.address && data.address.trim() !== "";
+  }
+  return true;
+}
+
+export const formSchema = checkoutSchema.refine(validateAddressForDelivery, {
+  message: "Для заказа, выберите пункт выдачи СДЭК",
+  path: ["address"],
+});

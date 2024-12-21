@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 
 import {
@@ -16,12 +16,15 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Skeleton,
 } from "@/components";
 import { useCart, useProductDialog } from "@/hooks";
-import { cn, findOffer } from "@/lib/utils";
-import { PossibleOffer } from "@/types";
+import { cn, findAllPossibleOffersOfAProduct, findOffer, transformSingleProductData } from "@/lib/utils";
+import { PossibleOffer, TransformedProductData } from "@/types";
 import { ProductPreviewData } from "@/types";
+import { GetProductsResponse } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -36,27 +39,38 @@ const FormSchema = z.object({
   size: z.string().min(1, { message: "Выберите размер" }),
 });
 
-const AddToCartForm = ({ product, color, possibleOffers }: Props) => {
+const AddToCartForm = ({ product, color }: Props) => {
   const router = useRouter();
-  const { addItem, items } = useCart();
-  const isOneSize = !product?.sizes.length;
-  const [currentOffer, setCurrentOffer] = useState<PossibleOffer>();
-  const itemAlreadyInCart = currentOffer && items.some((item) => item.id === currentOffer?.id);
+  const { addItem, items, incrementItemQuantity, decrementItemQuantity, setItemQuantity } = useCart();
+  const [currentOffer, setCurrentOffer] = useState<PossibleOffer | undefined>(undefined);
+  const quantity = (currentOffer && items.find((item) => item.id === currentOffer?.id)?.quantity) || 0;
+  const maxAvailableQuantity = currentOffer?.availableQuantity;
   type ProductForm = z.infer<typeof FormSchema>;
   const { isDialogOpen, offerToRemove, setIsDialogOpen, prepareProductForDeletion, handleRemoveProduct } =
     useProductDialog();
 
-  const form = useForm<ProductForm>({
-    resolver: zodResolver(FormSchema),
-    defaultValues: {
-      size: product?.defaultSize,
+  const { isLoading, error, data } = useQuery<GetProductsResponse, Error, TransformedProductData>({
+    queryKey: [product.parentProductId],
+    queryFn: () => fetch(`/api/getProductsByIds?ids=${product.parentProductId}`).then((res) => res.json()),
+    select: (data) => {
+      const rawProduct = data.products[0];
+      const dynamicProduct = transformSingleProductData(rawProduct);
+      const dynamicPossibleOffers = findAllPossibleOffersOfAProduct(rawProduct);
+      return {
+        dynamicProduct,
+        dynamicPossibleOffers,
+      };
     },
   });
 
-  type MultipleSizeForm = typeof form;
+  const dynamicProduct = data?.dynamicProduct;
+  const dynamicPossibleOffers = data?.dynamicPossibleOffers;
+  const itemAlreadyInCart = dynamicPossibleOffers && items.some((item) => item.id === currentOffer?.id);
+  const isOneSize = !dynamicProduct?.sizes.length;
+  const initialSize =
+    dynamicPossibleOffers && dynamicPossibleOffers?.find((offer) => !offer.isOutOfStock)?.properties.size;
 
   const handleToast = (product: PossibleOffer) => {
-    console.log("toast");
     toast("ТОВАР ДОБАВЛЕН В КОРЗИНУ", {
       description: product.name,
       duration: 2000,
@@ -70,23 +84,90 @@ const AddToCartForm = ({ product, color, possibleOffers }: Props) => {
     });
   };
 
+  const handleMaxQuantityAlertToast = useCallback(() => {
+    toast.info("Товар раскупают. Получится заказать чуть меньше", {
+      duration: 2000,
+    });
+  }, []);
+
+  const handleAddProductToCart = (data: ProductForm) => {
+    if (dynamicPossibleOffers) {
+      const offer = findOffer(dynamicPossibleOffers, color, data.size, product?.name);
+      if (offer) {
+        addItem(offer);
+        handleToast(offer);
+      }
+    }
+  };
+
+  const form = useForm<ProductForm>({
+    resolver: zodResolver(FormSchema),
+    defaultValues: {
+      size: "",
+    },
+  });
+
+  useEffect(() => {
+    if (initialSize) {
+      form.setValue("size", initialSize);
+    }
+  }, [initialSize, form]);
+
   const size = useWatch({
     control: form.control,
     name: "size",
   });
 
-  useEffect(() => {
-    const offer = findOffer(possibleOffers, color, size, product?.name);
-    offer && setCurrentOffer(offer);
-  }, [color, size, possibleOffers, product?.name]);
+  const handleIncrement = () => {
+    if (!currentOffer) return;
 
-  const handleAddProductToCart = (data: ProductForm) => {
-    const offer = findOffer(possibleOffers, color, data.size, product?.name);
-    if (offer) {
-      addItem(offer);
-      handleToast(offer);
+    if (itemAlreadyInCart) {
+      incrementItemQuantity(currentOffer.id);
+    } else {
+      addItem(currentOffer);
+      handleToast(currentOffer);
     }
   };
+
+  const handleDecrement = () => {
+    if (!currentOffer) return;
+
+    if (itemAlreadyInCart && quantity === 1) {
+      prepareProductForDeletion(currentOffer);
+    } else if (itemAlreadyInCart) {
+      decrementItemQuantity(currentOffer.id);
+    }
+  };
+
+  useEffect(() => {
+    if (dynamicPossibleOffers) {
+      const offer = findOffer(dynamicPossibleOffers, color, size, product?.name);
+      offer && setCurrentOffer(offer);
+    }
+  }, [color, size, dynamicPossibleOffers, product?.name]);
+
+  useEffect(() => {
+    if (currentOffer && maxAvailableQuantity !== undefined && quantity > maxAvailableQuantity) {
+      setItemQuantity(currentOffer.id, maxAvailableQuantity);
+      handleMaxQuantityAlertToast();
+    }
+  }, [maxAvailableQuantity, quantity, currentOffer, setItemQuantity, handleMaxQuantityAlertToast]);
+
+  if (error) return "An error has occurred: " + (error as Error).message;
+
+  if (isLoading || !initialSize) {
+    return (
+      <div className="grid gap-4 mt-4 pointer-events-none">
+        <div className="flex flex-col items-center gap-4 w-full">
+          <div className="flex gap-4 w-full">
+            <Skeleton className="h-12 flex-grow border border-foreground flex items-center justify-center font-mono uppercase text-xs font-medium" />
+            <Skeleton className="h-12 flex-grow border border-foreground flex items-center justify-center font-mono uppercase text-xs font-medium" />
+          </div>
+          <Skeleton className="h-12 w-full border border-foreground flex items-center justify-center font-mono uppercase text-xs font-medium"></Skeleton>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -95,7 +176,7 @@ const AddToCartForm = ({ product, color, possibleOffers }: Props) => {
           <div className="flex flex-col items-center gap-4 w-full">
             <div className="flex gap-4 w-full">
               {isOneSize ? (
-                <div className="h-12 w-full border border-foreground flex items-center justify-center font-mono uppercase text-xs font-medium">
+                <div className="h-12 w-full flex-grow max-w-[50%] border border-foreground flex items-center justify-center font-mono uppercase text-xs font-medium">
                   один размер
                 </div>
               ) : (
@@ -103,11 +184,11 @@ const AddToCartForm = ({ product, color, possibleOffers }: Props) => {
                   control={form.control}
                   name="size"
                   render={({ field, fieldState }) => (
-                    <FormItem className="w-full max-w-[50%]">
-                      <DelayedSelect onValueChange={field.onChange} defaultValue={product?.defaultSize}>
+                    <FormItem className="h-12 border border-foreground w-full flex-grow max-w-[50%] flex items-center justify-center font-mono uppercase text-xs font-medium">
+                      <DelayedSelect onValueChange={field.onChange} defaultValue={initialSize}>
                         <FormControl>
                           <SelectTrigger
-                            className={cn("border-foreground focus-visible:border-primary", {
+                            className={cn("focus-visible:border-primary w-full", {
                               "border-error": fieldState.error,
                             })}
                           >
@@ -115,7 +196,7 @@ const AddToCartForm = ({ product, color, possibleOffers }: Props) => {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {product.sizes.map((size) => (
+                          {dynamicProduct.sizes.map((size) => (
                             <SelectItem key={size.value} value={size.value} disabled={!size.quantity}>
                               <span
                                 className={cn("uppercase font-mono w-full", {
@@ -137,12 +218,13 @@ const AddToCartForm = ({ product, color, possibleOffers }: Props) => {
                 />
               )}
               <QuantitySelector
-                offer={currentOffer}
-                prepareProductForDeletion={prepareProductForDeletion}
-                className="w-full max-w-[50%]"
+                value={quantity}
+                maxValue={maxAvailableQuantity}
+                onIncrement={handleIncrement}
+                onDecrement={handleDecrement}
+                className="flex-grow max-w-[]"
               />
             </div>
-
             <Button
               type="submit"
               className="w-full text-foreground"
