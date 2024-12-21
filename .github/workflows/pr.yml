@@ -29,10 +29,3 @@ jobs:
 
       - name: Lint and check code
         run: pnpm run check
-
-      - name: Build project
-        run: pnpm build
-        env:
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NEXT_PUBLIC_RETAIL_CRM_API: ${{ secrets.NEXT_PUBLIC_RETAIL_CRM_API}}
