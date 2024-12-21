@@ -9,8 +9,8 @@ import "./globals.css";
 const roboto_mono = Roboto_Mono({ subsets: ["cyrillic"] });
 
 export const metadata: Metadata = {
-  title: "SERVISEX™",
-  description: "All products crafted by hand in Belarus. We take no responsibility for the quality",
+  title: "ГОАТ.КОРП™",
+  description: "Страшные вещи для злых людей",
   icons: {
     icon: favicon.src,
   },
