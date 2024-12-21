@@ -6,6 +6,7 @@ export default function Home() {
       <div className="grow flex flex-col">
         <HomeGoat />
       </div>
+      {/* <></> */}
     </main>
   );
 }
