@@ -84,11 +84,17 @@ export const CartProductCard: React.FC<CartProductCardProps> = ({ product, prepa
     }
   }, [maxAvailableQuantity, quantity, currentOffer, setItemQuantity, handleMaxQuantityAlertToast]);
 
-  if (error) return <div>An error has occurred: {error.message}</div>;
+  if (error)
+    return (
+      <CardContent className="p-0 py-2 sm:p-4">
+        <div>An error has occurred: {error.message}</div>
+      </CardContent>
+    );
 
   if (isLoading || !currentOffer) {
     return <CartProductCardSkeleton />;
   }
+
   return (
     <CardContent className="p-0 py-2 sm:p-4">
       <div className="grid gap-2 cursor-pointer">
