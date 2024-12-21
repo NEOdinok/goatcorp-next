@@ -46,7 +46,7 @@ export const transformAllProductsData = (products: Product[]): { transformedProd
   const transformedProducts: ShopItem[] = [];
 
   products.forEach((product) => {
-    if (!product.manufacturer || product.manufacturer !== "SERVISEX") {
+    if (!product.manufacturer || product.manufacturer !== "GOAT.CORP") {
       return;
     }
 
@@ -113,7 +113,7 @@ export const transformAllProductsData = (products: Product[]): { transformedProd
 };
 
 export const transformSingleProductData = (product: Product, color?: string): ProductPreviewData => {
-  if (!product.manufacturer || product.manufacturer !== "SERVISEX") {
+  if (!product.manufacturer || product.manufacturer !== "GOAT.CORP") {
     return {
       name: "",
       imgs: [],
