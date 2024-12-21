@@ -1,6 +1,5 @@
 "use client";
 
-import { LoadingServisex } from "@/components";
 import { useIntro } from "@/hooks";
 import { transformAllProductsData } from "@/lib/utils";
 import { ShopItem } from "@/types";
@@ -9,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { ShopProductCard } from "./ShopProductCard";
+import { LoadingGoat } from "./ui/loading-goat";
 
 interface ProductsShowcaseProps {
   products: ShopItem[];
@@ -46,7 +46,7 @@ const ProductsShowcase = ({ products }: ProductsShowcaseProps) => {
   if (isLoading)
     return (
       <div className="justify-center items-center flex grow">
-        <LoadingServisex />
+        <LoadingGoat />
       </div>
     );
 

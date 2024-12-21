@@ -8,6 +8,7 @@ export { BaseHeader } from "./BaseHeader";
 export { BaseFooter } from "./BaseFooter";
 export { HeaderNavigation } from "./HeaderNavigation";
 export { HomeNavigation } from "./HomeNavigation";
+export { HomeNavigationGoat } from "./HomeNavigationGoat";
 export { HomeGoat } from "./HomeGoat";
 export { HomeServisex } from "./HomeServisex";
 export { ShopProductCard } from "./ShopProductCard";
@@ -29,7 +30,7 @@ export { Thanks } from "./Thanks";
 
 export { CopyrightServisex } from "./ui/copyright-servisex";
 export { CopyrightGoat } from "./ui/copyright-goat";
-export { Loading } from "./ui/loading";
+export { LoadingGoat } from "./ui/loading-goat";
 export { LoadingServisex } from "./ui/loading-servisex";
 export { LoadingEllipsis } from "./ui/loading-ellipsis";
 export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from "./ui/card";

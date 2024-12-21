@@ -1,0 +1,1 @@
+export { LoadingGoat } from "./LoadingGoat";

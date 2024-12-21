@@ -1,12 +1,12 @@
 import { Suspense } from "react";
 
-import { LoadingServisex, Thanks } from "@/components";
+import { LoadingGoat, Thanks } from "@/components";
 import { BaseLayout } from "@/layouts/BaseLayout";
 
 const ThanksPage = () => {
   return (
     <BaseLayout>
-      <Suspense fallback={<LoadingServisex />}>
+      <Suspense fallback={<LoadingGoat />}>
         <Thanks />
       </Suspense>
     </BaseLayout>

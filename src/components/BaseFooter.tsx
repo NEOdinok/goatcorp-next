@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { CopyrightServisex } from "./ui/copyright-servisex";
+import { CopyrightGoat } from "./ui/copyright-goat";
 
 const BaseFooter = () => {
   return (
@@ -23,7 +23,7 @@ const BaseFooter = () => {
       </div>
 
       <div className="flex justify-end gap-4">
-        <CopyrightServisex />
+        <CopyrightGoat />
       </div>
     </footer>
   );

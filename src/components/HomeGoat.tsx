@@ -1,10 +1,8 @@
-import { CopyrightGoat } from "@/components";
+import { CopyrightGoat, HomeNavigationGoat } from "@/components";
 import Image from "next/image";
 import Link from "next/link";
 import { IconGoatLogo, IconInstagram, IconYoutube } from "public/icons";
 import background from "public/images/goat-home-image.webp";
-
-import { HomeNavigation } from "./HomeNavigation";
 
 const HomeGoat = () => {
   return (
@@ -18,7 +16,7 @@ const HomeGoat = () => {
       <div className="content flex flex-col">
         <IconGoatLogo className="w-full h-[128px] mt-[220px] mb-0 ml-auto mr-auto text-white sm:mt-[10%]" />
 
-        <HomeNavigation className="w-full flex justify-center items-center" />
+        <HomeNavigationGoat className="w-full flex justify-center items-center" />
 
         <div className="flex gap-4 justify-between absolute bottom-4 w-full px-6">
           <div className="flex justify-end gap-4">
