@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+
 import { LoadingGoat } from "@/components";
 import { useCart } from "@/hooks";
 import { useQuery } from "@tanstack/react-query";
@@ -18,6 +20,14 @@ export const Thanks: React.FC = () => {
     enabled: !!orderId, // Prevent the query from running if orderId is undefined
   });
 
+  const orderPaid = data?.orders?.[0]?.status === "paid";
+
+  useEffect(() => {
+    if (orderPaid) {
+      clearCart();
+    }
+  }, [orderPaid, clearCart]);
+
   if (error)
     return (
       <div className="flex justify-center items-center grow">
@@ -31,10 +41,6 @@ export const Thanks: React.FC = () => {
         <LoadingGoat />
       </div>
     );
-
-  const orderPaid = data?.orders?.[0]?.status === "paid";
-
-  if (orderPaid) clearCart();
 
   return orderPaid ? <SuccessAfterPayment /> : <ErrorAfterPayment />;
 };
